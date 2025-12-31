@@ -1,29 +1,27 @@
-const API_URL = "http://localhost:4000/api/v1"; 
+import { apiFetch } from '@/lib/api'; 
 
 // --- 1. CÁC HÀM CHO KHÁCH HÀNG (SHOP) ---
 
 // Lấy danh sách sản phẩm (Trang chủ/Cửa hàng)
 export async function getProducts(page = 1, limit = 12, search = "", category = "") {
   try {
-    let url = `${API_URL}/products?page=${page}&limit=${limit}`;
-    if (search) url += `&q=${encodeURIComponent(search)}`;
-    if (category) url += `&category=${encodeURIComponent(category)}`;
+    // Chỉ cần viết phần đuôi, apiFetch tự động ghép với link Backend
+    let path = `/products?page=${page}&limit=${limit}`;
+    if (search) path += `&q=${encodeURIComponent(search)}`;
+    if (category) path += `&category=${encodeURIComponent(category)}`;
     
-    const res = await fetch(url, { cache: "no-store" });
-    const result = await res.json();
-    return result; // Trả về { data, total, page, limit... }
+    // apiFetch tự động trả về JSON, không cần await res.json() nữa
+    return await apiFetch(path); 
   } catch (error) {
     console.error("Lỗi getProducts:", error);
-    return { data: [] };
+    return { data: [] }; // Trả về rỗng để không lỗi giao diện
   }
 }
 
 // Lấy chi tiết sản phẩm (Trang chi tiết)
 export async function getProductBySlug(slug: string) {
   try {
-    // Backend mới hỗ trợ tìm cả ID và Slug qua route này
-    const res = await fetch(`${API_URL}/products/${encodeURIComponent(slug)}`, { cache: "no-store" });
-    const result = await res.json();
+    const result: any = await apiFetch(`/products/${encodeURIComponent(slug)}`);
     return result.data || null; 
   } catch (error) {
     console.error("Lỗi getProductBySlug:", error);
@@ -36,10 +34,7 @@ export async function getProductBySlug(slug: string) {
 // Lấy danh sách quản trị
 export async function getAdminProducts(page = 1, search = "") {
   try {
-    const res = await fetch(`${API_URL}/products?page=${page}&limit=100&q=${search}`, {
-      cache: "no-store"
-    });
-    const result = await res.json();
+    const result: any = await apiFetch(`/products?page=${page}&limit=100&q=${search}`);
     return result.data || [];
   } catch (error) {
     console.error("Lỗi getAdminProducts:", error);
@@ -50,50 +45,42 @@ export async function getAdminProducts(page = 1, search = "") {
 // [MỚI] Tạo sản phẩm
 export async function createProduct(data: any) {
   try {
-    const token = localStorage.getItem("token");
-    const res = await fetch(`${API_URL}/products`, {
+    const token = typeof window !== 'undefined' ? localStorage.getItem("token") : "";
+    
+    // apiFetch tự thêm Content-Type: application/json rồi
+    await apiFetch('/products', {
       method: "POST",
       headers: { 
-        "Content-Type": "application/json",
         "Authorization": `Bearer ${token}` 
       },
       body: JSON.stringify(data),
     });
     
-    // Nếu server trả lỗi (VD: trùng tên slug), ta ném lỗi ra để Form hiển thị
-    if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.message || err.error?.message || "Lỗi tạo sản phẩm");
-    }
-    
     return true;
   } catch (error) {
-    console.error(error);
-    return false; // Hoặc throw error nếu bạn muốn Form bắt được lỗi cụ thể
+    console.error("Lỗi tạo sản phẩm:", error);
+    // Nếu muốn hiện thông báo lỗi chi tiết thì throw error
+    // throw error; 
+    return false; 
   }
 }
 
 // [MỚI] Cập nhật sản phẩm
 export async function updateProduct(id: string, data: any) {
   try {
-    const token = localStorage.getItem("token");
-    const res = await fetch(`${API_URL}/products/${id}`, {
-      method: "PUT", // Router Backend đang dùng PUT
+    const token = typeof window !== 'undefined' ? localStorage.getItem("token") : "";
+    
+    await apiFetch(`/products/${id}`, {
+      method: "PUT", 
       headers: { 
-        "Content-Type": "application/json",
         "Authorization": `Bearer ${token}` 
       },
       body: JSON.stringify(data),
     });
 
-    if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.message || err.error?.message || "Lỗi cập nhật sản phẩm");
-    }
-
     return true;
   } catch (error) {
-    console.error(error);
+    console.error("Lỗi cập nhật sản phẩm:", error);
     return false;
   }
 }
@@ -101,14 +88,15 @@ export async function updateProduct(id: string, data: any) {
 // Xóa sản phẩm
 export async function deleteProduct(id: string) {
   try {
-    const token = localStorage.getItem("token");
-    const res = await fetch(`${API_URL}/products/${id}`, {
+    const token = typeof window !== 'undefined' ? localStorage.getItem("token") : "";
+    
+    await apiFetch(`/products/${id}`, {
       method: "DELETE",
       headers: { 
         "Authorization": `Bearer ${token}` 
       }
     });
-    return res.ok;
+    return true;
   } catch (error) {
     console.error("Lỗi deleteProduct:", error);
     return false;

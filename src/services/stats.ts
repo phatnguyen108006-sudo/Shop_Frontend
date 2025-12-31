@@ -1,18 +1,19 @@
-const API_URL = "http://localhost:4000/api/v1";
+import { apiFetch } from '@/lib/api';
 
 export async function getDashboardStats() {
   try {
-    const token = localStorage.getItem("token");
-    const res = await fetch(`${API_URL}/stats`, {
-      headers: { "Authorization": `Bearer ${token}` },
-      cache: "no-store",
+    const token = typeof window !== 'undefined' ? localStorage.getItem("token") : "";
+    const result: any = await apiFetch('/stats', {
+      headers: { 
+        "Authorization": `Bearer ${token}` 
+      },
     });
     
-    if (!res.ok) return null;
-    const result = await res.json();
-    return result.data;
+    // Nếu apiFetch thành công, trả về data
+    return result.data || null;
+
   } catch (error) {
-    console.error(error);
+    console.error("Lỗi lấy thống kê dashboard:", error);
     return null;
   }
 }
