@@ -1,6 +1,6 @@
 // --- PHẦN 1: Cấu hình URL API ---
-const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api/v1";
-
+// const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api/v1";
+const API_URL = "https://shop-backend-cu0m.onrender.com/api/v1";
 console.log("🔗 API Base URL:", API_URL);
 
 // --- PHẦN 2: Hàm gọi API ---
