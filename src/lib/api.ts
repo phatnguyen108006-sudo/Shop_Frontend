@@ -1,4 +1,11 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+// Tự động kiểm tra môi trường
+const isProduction = process.env.NODE_ENV === 'production';
+
+// Nếu là Production (Trên Vercel) -> Dùng link Render
+// Nếu là Development (Trên máy tính) -> Dùng link Localhost
+const BASE_URL = isProduction
+  ? "https://shop-backend-cu0m.onrender.com" 
+  : "http://localhost:4000";
 
 export async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
   const url = path.startsWith("http") ? path : `${BASE_URL}${path}`;
