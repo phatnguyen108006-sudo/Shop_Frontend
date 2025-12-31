@@ -17,3 +17,5 @@ const nextConfig = {
 };
 
 module.exports = nextConfig;
+
+// Force update env vars (Dòng này để ép Vercel cập nhật biến môi trường)
