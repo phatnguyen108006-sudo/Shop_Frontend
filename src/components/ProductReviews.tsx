@@ -2,9 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { Star, User, Send } from "lucide-react";
-import { useAuth } from "@/features/auth/auth-context"; // Lấy thông tin user đăng nhập
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1";
+import { useAuth } from "@/features/auth/auth-context"; 
+import { apiFetch } from "@/lib/api";
 
 interface Review {
   _id: string;
@@ -15,20 +14,19 @@ interface Review {
 }
 
 export default function ProductReviews({ productId }: { productId: string }) {
-  const { user } = useAuth(); // Kiểm tra xem user đã login chưa
+  const { user } = useAuth(); 
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [rating, setRating] = useState(5); // Mặc định 5 sao
+  const [rating, setRating] = useState(5); 
   const [comment, setComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Load danh sách đánh giá khi vào trang
   useEffect(() => {
-    fetch(`${API_URL}/reviews/${productId}`)
-      .then((res) => res.json())
-      .then((data) => {
+    apiFetch(`/reviews/${productId}`)
+      .then((data: any) => {
         if (data.ok) setReviews(data.data);
       })
-      .catch((err) => console.error(err));
+      .catch((err) => console.error("Lỗi tải review:", err));
   }, [productId]);
 
   // Xử lý gửi đánh giá
@@ -39,25 +37,27 @@ export default function ProductReviews({ productId }: { productId: string }) {
     setIsSubmitting(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${API_URL}/reviews`, {
+      
+      // 👇 Dùng apiFetch: Tự động ghép link, tự thêm Content-Type
+      const data: any = await apiFetch("/reviews", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`, // Gửi token để xác thực
+          "Authorization": `Bearer ${token}`, 
         },
         body: JSON.stringify({ productId, rating, comment }),
       });
 
-      const data = await res.json();
+      // Nếu apiFetch thành công (không ném lỗi)
       if (data.ok) {
         setReviews([data.data, ...reviews]); // Thêm review mới vào đầu danh sách
         setComment(""); // Reset form
         setRating(5);
-      } else {
-        alert("Lỗi: " + (data.error?.message || "Không thể gửi đánh giá"));
-      }
-    } catch (error) {
+        alert("Cảm ơn bạn đã đánh giá!");
+      } 
+      
+    } catch (error: any) {
       console.error(error);
+      alert("Lỗi: " + (error.message || "Không thể gửi đánh giá"));
     } finally {
       setIsSubmitting(false);
     }

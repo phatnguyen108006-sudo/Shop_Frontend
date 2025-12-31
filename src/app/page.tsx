@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { ArrowRight, Truck, RefreshCw, Headset, Star } from "lucide-react";
 import { useCart } from "@/features/cart/cart-context"; 
+import { apiFetch } from "@/lib/api"; 
 
 // Format tiền tệ
 const formatVND = (n: number) => n.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
@@ -29,10 +30,8 @@ export default function HomePage() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        // 👇 SỬA 1: Đổi limit=8 thành limit=4 để chỉ hiện 1 dòng
-        const res = await fetch("http://localhost:4000/api/v1/products?limit=4&sort=-createdAt");
-        const data = await res.json();
-        if (data.ok) {
+        const data: any = await apiFetch("/products?limit=4&sort=-createdAt");
+        if (data.data) {
           setProducts(data.data);
         }
       } catch (error) {
@@ -115,7 +114,6 @@ export default function HomePage() {
           )}
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* 👇 SỬA 2: Thêm index vào map và dùng key dự phòng để tránh lỗi */}
             {products.map((product, index) => (
               <div key={product._id || product.id || index} className="group cursor-pointer">
                 <Link href={`/shop/${product.slug || product._id}`}>

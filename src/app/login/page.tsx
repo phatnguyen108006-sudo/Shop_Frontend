@@ -2,14 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image"; // Thêm Image cho Split Screen
+import Image from "next/image"; 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginValues } from "@/app/features/auth/schemas";
-// Import Icons để giao diện đẹp hơn
 import { Mail, Lock, ArrowRight, Loader2, Eye, EyeOff } from "lucide-react"; 
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1";
+import { apiFetch } from "@/lib/api";
 
 export default function LoginPage() {
   const [serverMsg, setServerMsg] = useState<string | null>(null);
@@ -28,27 +26,16 @@ export default function LoginPage() {
     setServerMsg(null);
     
     try {
-      const res = await fetch(`${API_URL}/auth/login`, {
+      const data: any = await apiFetch("/auth/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
       });
 
-      const contentType = res.headers.get("content-type");
-      let data;
-      if (contentType && contentType.indexOf("application/json") !== -1) {
-        data = await res.json();
-      } else {
-        throw new Error("Lỗi kết nối Server (Phản hồi không hợp lệ)");
-      }
-
-      if (!res.ok) {
-        setServerMsg(data?.message || data?.error?.message || "Đăng nhập thất bại");
-        return;
-      }
-
-      if (data.ok) {
-        localStorage.setItem("token", data.accessToken || data.token);
+      // Nếu chạy đến đây nghĩa là đăng nhập thành công (apiFetch tự ném lỗi nếu thất bại)
+      if (data) {
+        // Lưu token vào localStorage
+        const token = data.accessToken || data.token;
+        localStorage.setItem("token", token);
 
         const userInfo = {
             name: data.name || data.user?.name,
@@ -59,20 +46,22 @@ export default function LoginPage() {
         localStorage.setItem("user", JSON.stringify(userInfo));
         localStorage.setItem("role", userInfo.role);
 
+        // Chuyển hướng
         window.location.href = userInfo.role === 'admin' ? '/admin' : '/';
       }
 
     } catch (error: any) {
       console.error(error);
-      setServerMsg(error.message || "Không thể kết nối đến Server");
+      // Hiển thị lỗi từ server trả về (apiFetch đã xử lý message rồi)
+      setServerMsg(error.message || "Đăng nhập thất bại");
     }
   }
 
-  // --- PHẦN GIAO DIỆN SPLIT SCREEN ---
+  // --- PHẦN GIAO DIỆN ---
   return (
     <div className="min-h-[calc(100vh-80px)] flex bg-white font-sans">
       
-      {/* 🟢 CỘT TRÁI: FORM (Logic của bạn + UI mới) */}
+      {/* 🟢 CỘT TRÁI: FORM */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-24 animate-in slide-in-from-left-10 duration-700">
         <div className="w-full max-w-md space-y-8">
           
@@ -169,27 +158,27 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* 🔴 CỘT PHẢI: HÌNH ẢNH (Giữ nguyên phong cách Fashion) */}
+      {/* 🔴 CỘT PHẢI: HÌNH ẢNH */}
       <div className="hidden lg:block w-1/2 relative bg-gray-100">
-  <Image 
-    src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=1000&auto=format&fit=crop" 
-    alt="Fashion Login" 
-    fill 
-    className="object-cover" 
-    priority
-  />
-  <div className="absolute inset-0 bg-black/30" />
-  
-  <div className="absolute bottom-16 left-16 text-white max-w-lg z-10">
-    <blockquote className="text-3xl md:text-4xl font-sans font-bold leading-tight mb-6 drop-shadow-lg">
-      "Phong cách là cách đơn giản nhất để nói những điều phức tạp"
-    </blockquote>
-    <div className="flex items-center gap-3">
-      <div className="h-0.5 w-10 bg-white"></div>
-      <p className="font-bold text-base uppercase drop-shadow-md">BTCK Admin</p>
+        <Image 
+          src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=1000&auto=format&fit=crop" 
+          alt="Fashion Login" 
+          fill 
+          className="object-cover" 
+          priority
+        />
+        <div className="absolute inset-0 bg-black/30" />
+        
+        <div className="absolute bottom-16 left-16 text-white max-w-lg z-10">
+          <blockquote className="text-3xl md:text-4xl font-sans font-bold leading-tight mb-6 drop-shadow-lg">
+            "Phong cách là cách đơn giản nhất để nói những điều phức tạp"
+          </blockquote>
+          <div className="flex items-center gap-3">
+            <div className="h-0.5 w-10 bg-white"></div>
+            <p className="font-bold text-base uppercase drop-shadow-md">BTCK Admin</p>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
-</div>
   );
 }

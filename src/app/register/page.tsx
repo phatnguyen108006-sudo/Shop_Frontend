@@ -3,15 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image"; // Thêm Image
+import Image from "next/image"; 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema, type RegisterValues } from "@/app/features/auth/schemas";
-// Import Icons cho đẹp
 import { User, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, CheckCircle2 } from "lucide-react";
-
-// Lấy URL từ biến môi trường
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1";
+import { apiFetch } from "@/lib/api";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -33,33 +30,20 @@ export default function RegisterPage() {
   async function onSubmit(values: RegisterValues) {
     setServerMsg(null);
     try {
-      const res = await fetch(`${API_URL}/auth/register`, {
+      // 👇 SỬA LẠI: Dùng apiFetch thay vì fetch thường
+      await apiFetch("/auth/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
       });
 
-      const contentType = res.headers.get("content-type");
-      let data;
-      if (contentType && contentType.includes("application/json")) {
-        data = await res.json();
-      } else {
-        throw new Error("Lỗi phản hồi từ Server (Không phải JSON)");
-      }
-
-      if (!res.ok) {
-        const errorMsg = data.message || data.error?.message || "Đăng ký thất bại";
-        setServerMsg(errorMsg);
-        return;
-      }
-
-      // THÀNH CÔNG
+      // Nếu apiFetch không ném lỗi -> Đăng ký thành công
       alert("Đăng ký thành công! Bạn sẽ được chuyển đến trang đăng nhập.");
       router.push("/login");
 
     } catch (error: any) {
       console.error(error);
-      setServerMsg("Không thể kết nối đến Server. Vui lòng kiểm tra lại đường truyền.");
+      // Hiển thị lỗi từ server trả về (apiFetch đã xử lý message rồi)
+      setServerMsg(error.message || "Đăng ký thất bại. Vui lòng thử lại.");
     }
   }
 

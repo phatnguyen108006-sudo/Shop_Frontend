@@ -3,6 +3,7 @@
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import ProductCard from "@/components/ProductCard";
+import { apiFetch } from "@/lib/api";
 
 // Định nghĩa kiểu dữ liệu cho sản phẩm
 interface Product {
@@ -51,18 +52,12 @@ export default function ShopPage() {
           limit: String(LIMIT),
         });
         
-        // Vẫn giữ dòng này để hỗ trợ tìm kiếm từ Header
         if (qParam) params.set("q", qParam);
 
-        const res = await fetch(`http://localhost:4000/api/v1/products?${params.toString()}`, {
-          cache: "no-store",
-        });
+        // 👇 SỬA LẠI: Dùng apiFetch thay cho fetch thường
+        // Không cần lo http://localhost hay https://... nữa
+        const json = await apiFetch<ApiResponse>(`/products?${params.toString()}`);
 
-        if (!res.ok) {
-          throw new Error("Không thể kết nối tới Backend");
-        }
-
-        const json = await res.json();
         setData(json);
       } catch (err: any) {
         console.error(err);
@@ -91,8 +86,6 @@ export default function ShopPage() {
         )}
       </div>
 
-      {/* ĐÃ XÓA FORM TÌM KIẾM Ở ĐÂY */}
-
       {/* Loading State */}
       {isLoading && (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 animate-pulse">
@@ -105,7 +98,7 @@ export default function ShopPage() {
       {/* Error State */}
       {errorMsg && (
         <div className="p-4 bg-red-50 text-red-600 rounded-lg border border-red-200">
-          Lỗi: {errorMsg}. Hãy chắc chắn Backend Port 4000 đang chạy.
+          Lỗi: {errorMsg}. Vui lòng thử lại sau.
         </div>
       )}
 

@@ -4,6 +4,7 @@ import AddToCartButton from "@/features/cart/AddToCartButton";
 import { formatVND } from "@/lib/format";
 import ProductImageGallery from "@/components/ProductImageGallery"; 
 import ProductReviews from "@/components/ProductReviews"; 
+import { apiFetch } from "@/lib/api";
 
 // --- CÁC ICON TRANG TRÍ ---
 const CheckIcon = () => (
@@ -27,14 +28,12 @@ const TruckIcon = () => (
 // --- FETCH DATA ---
 async function getProduct(id: string) {
   try {
-    const res = await fetch(`http://localhost:4000/api/v1/products/${id}`, {
+    const result: any = await apiFetch(`/products/${id}`, {
       cache: "no-store",
     });
 
-    if (!res.ok) return null;
-    
-    const json = await res.json();
-    return json.data || json; 
+    // apiFetch trả về dữ liệu JSON đã parse
+    return result.data || result; 
   } catch (error) {
     console.error("Lỗi FETCH:", error);
     return null;
@@ -171,7 +170,7 @@ export default async function ProductDetailPage(props: PageProps) {
           </div>
         </div>
 
-        {/* --- PHẦN 2: ĐÁNH GIÁ SẢN PHẨM (MỚI THÊM) --- */}
+        {/* --- PHẦN 2: ĐÁNH GIÁ SẢN PHẨM --- */}
         <div id="reviews">
           {/* Truyền ID của sản phẩm vào component để nó tự fetch đánh giá */}
           <ProductReviews productId={product._id || product.id} />
