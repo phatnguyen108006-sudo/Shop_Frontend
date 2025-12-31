@@ -1,14 +1,12 @@
-// Tự động kiểm tra môi trường
-const isProduction = process.env.NODE_ENV === 'production';
+const isProduction = typeof window !== 'undefined' && window.location.hostname.includes('vercel.app');
 
-// Nếu là Production (Trên Vercel) -> Dùng link Render
-// Nếu là Development (Trên máy tính) -> Dùng link Localhost
 const BASE_URL = isProduction
-  ? "https://shop-backend-cu0m.onrender.com" 
-  : "http://localhost:4000";
+  ? "https://shop-backend-cu0m.onrender.com"  // Nếu chạy trên Web Vercel -> Dùng link Render
+  : "http://localhost:4000";                  // Nếu chạy dưới máy tính -> Dùng link Localhost
 
-  console.log("🚀 Môi trường:", isProduction ? "ONLINE (Vercel)" : "OFFLINE (Localhost)");
-  console.log("🔗 Đang kết nối tới:", BASE_URL);
+console.log("🚀 Môi trường:", isProduction ? "ONLINE (Vercel)" : "OFFLINE (Localhost)");
+console.log("🔗 Đang kết nối tới:", BASE_URL);
+
 // Hàm chung để gọi API
 export async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
   const url = path.startsWith("http") ? path : `${BASE_URL}${path}`;
