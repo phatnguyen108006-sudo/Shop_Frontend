@@ -1,11 +1,8 @@
-const isProduction = typeof window !== 'undefined' && window.location.hostname.includes('vercel.app');
+const BASE_URL = process.env.NODE_ENV === 'production'
+  ? "https://shop-backend-cu0m.onrender.com" 
+  : "http://localhost:4000";
 
-const BASE_URL = isProduction
-  ? "https://shop-backend-cu0m.onrender.com"  // Nếu chạy trên Web Vercel -> Dùng link Render
-  : "http://localhost:4000";                  // Nếu chạy dưới máy tính -> Dùng link Localhost
-
-console.log("🚀 Môi trường:", isProduction ? "ONLINE (Vercel)" : "OFFLINE (Localhost)");
-console.log("🔗 Đang kết nối tới:", BASE_URL);
+console.log("🔗 API Base URL:", BASE_URL);
 
 // Hàm chung để gọi API
 export async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
