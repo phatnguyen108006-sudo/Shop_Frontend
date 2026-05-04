@@ -4,31 +4,107 @@
 @tailwind utilities;
 
 :root {
-  /* ☀️ Mặc định (Chế độ Sáng) */
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f6f1e8;
+  --foreground: #231815;
+  --font-body: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-display: Georgia, "Times New Roman", serif;
+  --surface: rgba(255, 250, 243, 0.74);
+  --surface-strong: #fffaf1;
+  --border-soft: rgba(162, 126, 74, 0.2);
+  --border-strong: rgba(122, 89, 44, 0.35);
+  --accent: #9d7a45;
+  --accent-deep: #6f5228;
+  --muted: #746658;
+  --shadow-luxe: 0 24px 80px rgba(77, 53, 26, 0.12);
 }
 
-/* 🌙 Khi thẻ HTML có class "dark" thì đổi giá trị biến */
 .dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
+  --background: #120f0d;
+  --foreground: #f2e7d3;
+  --surface: rgba(31, 24, 19, 0.82);
+  --surface-strong: #1d1713;
+  --border-soft: rgba(207, 179, 131, 0.15);
+  --border-strong: rgba(213, 186, 140, 0.28);
+  --accent: #d4b27c;
+  --accent-deep: #f0d7ae;
+  --muted: #bda992;
+  --shadow-luxe: 0 24px 80px rgba(0, 0, 0, 0.35);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-body);
+  --font-serif: var(--font-display);
+}
+
+* {
+  border-color: var(--border-soft);
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  
-  /* 👇 ĐÃ SỬA: Thêm var(--font-inter) lên đầu tiên để ưu tiên dùng font này */
-  font-family: var(--font-inter), Arial, Helvetica, sans-serif;
-  
-  /* Chuyển màu mượt mà */
+  background-image:
+    radial-gradient(circle at top left, rgba(212, 178, 124, 0.22), transparent 32%),
+    radial-gradient(circle at top right, rgba(157, 122, 69, 0.16), transparent 24%),
+    linear-gradient(180deg, rgba(255, 251, 245, 0.95), rgba(246, 241, 232, 1));
+  font-family: var(--font-body), Arial, Helvetica, sans-serif;
   transition: background-color 0.3s, color 0.3s;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(rgba(157, 122, 69, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(157, 122, 69, 0.035) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(circle at center, black 45%, transparent 88%);
+  opacity: 0.55;
+}
+
+a,
+button,
+input {
+  transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+  transition-duration: 200ms;
+}
+
+::selection {
+  background: rgba(157, 122, 69, 0.24);
+  color: var(--foreground);
+}
+
+.luxury-shell {
+  position: relative;
+  overflow: hidden;
+}
+
+.luxury-shell::after {
+  content: "";
+  position: absolute;
+  inset: auto -10% -35% auto;
+  width: 360px;
+  height: 360px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(212, 178, 124, 0.18), transparent 68%);
+  pointer-events: none;
+}
+
+.luxury-panel {
+  background: var(--surface);
+  backdrop-filter: blur(18px);
+  box-shadow: var(--shadow-luxe);
+  border: 1px solid var(--border-soft);
+}
+
+.luxury-title {
+  font-family: var(--font-display), Georgia, serif;
+  letter-spacing: 0.02em;
 }

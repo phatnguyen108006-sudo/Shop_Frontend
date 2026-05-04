@@ -2,9 +2,8 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-// Định nghĩa kiểu dữ liệu sản phẩm trong giỏ
 export type CartItem = {
-  id: string | number; 
+  id: string | number;
   name: string;
   price: number;
   image?: string;
@@ -12,13 +11,26 @@ export type CartItem = {
   slug?: string;
 };
 
-// Định nghĩa những gì Context cung cấp
+type CartProductInput = {
+  id?: string | number;
+  _id?: string | number;
+  name?: string;
+  title?: string;
+  price: number;
+  image?: string;
+  slug?: string;
+  quantity?: number;
+  maxStock?: number;
+};
+
 type CartContextType = {
   items: CartItem[];
-  addToCart: (product: any) => void;
+  hydrated: boolean;
+  addToCart: (product: CartProductInput) => void;
+  updateQuantity: (id: string | number, quantity: number) => void;
   removeFromCart: (id: string | number) => void;
   clearCart: () => void;
-  totalPrice: number;    
+  totalPrice: number;
   totalItems: number;
 };
 
@@ -26,8 +38,8 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export default function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
+  const [hydrated, setHydrated] = useState(false);
 
-  // Load từ localStorage
   useEffect(() => {
     const savedCart = localStorage.getItem("BTCK_cart");
     if (savedCart) {
@@ -37,19 +49,16 @@ export default function CartProvider({ children }: { children: React.ReactNode }
         console.error("Lỗi đọc giỏ hàng", e);
       }
     }
+    setHydrated(true);
   }, []);
 
-  // Lưu vào localStorage
   useEffect(() => {
+    if (!hydrated) return;
     localStorage.setItem("BTCK_cart", JSON.stringify(items));
-  }, [items]);
+  }, [items, hydrated]);
 
-  // 👇👇👇 HÀM ĐÃ SỬA LỖI 👇👇👇
-  const addToCart = (product: any) => {
+  const addToCart = (product: CartProductInput) => {
     setItems((prev) => {
-      // 1. CHUẨN HÓA ID:
-      // Sản phẩm từ API MongoDB thường có _id, trong khi giỏ hàng dùng id.
-      // Ta ưu tiên lấy id, nếu không có thì lấy _id làm id.
       const productId = product.id || product._id;
 
       if (!productId) {
@@ -57,28 +66,38 @@ export default function CartProvider({ children }: { children: React.ReactNode }
         return prev;
       }
 
-      // 2. Tìm xem sản phẩm đã có trong giỏ chưa (so sánh bằng ID chuẩn hóa)
       const existing = prev.find((item) => item.id === productId);
+      const quantityToAdd = product.quantity && product.quantity > 0 ? product.quantity : 1;
 
       if (existing) {
-        // Nếu đã có -> Tăng số lượng
         return prev.map((item) =>
-          item.id === productId ? { ...item, quantity: item.quantity + 1 } : item
+          item.id === productId ? { ...item, quantity: item.quantity + quantityToAdd } : item
         );
       }
 
-      // 3. Nếu chưa có -> Thêm mới (và nhớ gán thuộc tính id chính thức)
       return [
-        ...prev, 
-        { 
-            ...product, 
-            id: productId, // Quan trọng: Gán id chuẩn để lần sau so sánh
-            quantity: 1 
-        }
+        ...prev,
+        {
+          id: productId,
+          name: product.name || product.title || "Sản phẩm",
+          price: product.price,
+          image: product.image,
+          slug: product.slug,
+          quantity: quantityToAdd,
+        },
       ];
     });
   };
-  // 👆👆👆 KẾT THÚC SỬA LỖI 👆👆👆
+
+  const updateQuantity = (id: string | number, quantity: number) => {
+    setItems((prev) => {
+      if (quantity <= 0) {
+        return prev.filter((item) => item.id !== id);
+      }
+
+      return prev.map((item) => (item.id === id ? { ...item, quantity } : item));
+    });
+  };
 
   const removeFromCart = (id: string | number) => {
     setItems((prev) => prev.filter((item) => item.id !== id));
@@ -94,7 +113,7 @@ export default function CartProvider({ children }: { children: React.ReactNode }
 
   return (
     <CartContext.Provider
-      value={{ items, addToCart, removeFromCart, clearCart, totalPrice, totalItems }}
+      value={{ items, hydrated, addToCart, updateQuantity, removeFromCart, clearCart, totalPrice, totalItems }}
     >
       {children}
     </CartContext.Provider>

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { LayoutDashboard, ShoppingBag, Package, Users, LogOut, Menu, X } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, Package, Users, LogOut, Menu, X, KeyRound } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -65,6 +65,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </nav>
       
       <div className="absolute bottom-4 left-4 right-4 border-t border-gray-100 pt-4">
+         <Link
+           href="/account/password"
+           onClick={() => setIsMobileMenuOpen(false)}
+           className="mb-2 flex items-center gap-3 px-4 py-3 w-full text-gray-700 hover:bg-gray-100 rounded-lg text-sm font-medium transition-colors"
+         >
+           <KeyRound size={20} /> Đổi mật khẩu
+         </Link>
          <button 
            onClick={() => { localStorage.clear(); window.location.href = "/login"; }}
            className="flex items-center gap-3 px-4 py-3 w-full text-red-600 hover:bg-red-50 rounded-lg text-sm font-medium transition-colors"

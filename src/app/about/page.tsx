@@ -1,92 +1,166 @@
-import Image from 'next/image';
-import Link from 'next/link';
-// Import các icon từ thư viện bạn chọn, ví dụ lucide-react
-import { PackageCheck, Truck, HeartHandshake } from 'lucide-react';
+import Link from "next/link";
+import { Gem, ShieldCheck, Sparkles } from "lucide-react";
 
 export const metadata = {
-  title: 'Về chúng tôi - BTCK | Nơi mua sắm tin cậy',
-  description: 'Tìm hiểu về câu chuyện và cam kết chất lượng của BTCK.',
+  title: "Về chúng tôi - Trang Sức",
+  description: "Tìm hiểu câu chuyện, triết lý tuyển chọn và dịch vụ của Trang Sức.",
 };
 
 export default function AboutPage() {
   return (
-    <main className="bg-white">
-      {/* 1. Hero Banner */}
-      <section className="relative h-[400px] flex items-center justify-center bg-gray-900 text-white">
-        {/* Gợi ý: Thay bằng ảnh thật của shop làm nền */}
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-900 to-blue-900 opacity-80"></div>
-        <div className="relative z-10 text-center px-4">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Câu Chuyện Về BTCK</h1>
-          <p className="text-xl md:text-2xl font-light">Nơi thời trang gặp gỡ sự tiện dụng và an tâm.</p>
-        </div>
-      </section>
-
-      {/* 2. Story Section (Ảnh bên phải, chữ bên trái) */}
-      <section className="container mx-auto py-16 px-4 md:px-8">
-        <div className="flex flex-col md:flex-row items-center gap-12">
-          <div className="md:w-1/2 space-y-6">
-            <h2 className="text-3xl font-bold text-gray-800">Khởi đầu từ sự thấu hiểu</h2>
-            <p className="text-gray-600 leading-relaxed">
-              Chào bạn, BTCK được thành lập với một niềm tin đơn giản: Mua sắm online không nên là một trò may rủi.
-              Chúng tôi hiểu cảm giác thất vọng khi nhận được món hàng không như ý.
-            </p>
-            <p className="text-gray-600 leading-relaxed">
-              Tại BTCK, chúng tôi không chỉ bán sản phẩm, chúng tôi bán sự an tâm. Từ chiếc quần trendy đến đôi dép tổ ong bền bỉ, tất cả đều được tuyển chọn kỹ lưỡng để đảm bảo hình ảnh bạn thấy là thứ bạn nhận được.
-            </p>
-          </div>
-          <div className="md:w-1/2 relative h-[400px] w-full rounded-xl overflow-hidden shadow-xl">
-            {/* SỬA TẠI ĐÂY: Dùng thẻ img thường thay vì Image của Next.js */}
-           <img
-              src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80" // Đây là link ảnh mẫu văn phòng đẹp (đuôi jpg)
-              alt="Góc làm việc tại BTCK"
-              className="w-full h-full object-cover" // Class này giúp ảnh phủ kín khung
-            />
+    <main className="pb-12">
+      <section className="mx-auto mt-4 max-w-7xl px-4 sm:mt-8">
+        <div className="luxury-panel luxury-shell rounded-[40px] px-6 py-14 md:px-10">
+          <p className="text-[11px] uppercase tracking-[0.45em] text-[var(--accent-deep)]">Câu chuyện thương hiệu</p>
+          <div className="mt-5 grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+            <div>
+              <h1 className="luxury-title text-5xl font-semibold leading-none text-[var(--foreground)] md:text-7xl">
+                Chúng tôi tin vẻ đẹp sang trọng nên được cảm nhận một cách tự nhiên.
+              </h1>
+              <p className="mt-6 max-w-2xl text-base leading-8 text-[var(--muted)] md:text-lg">
+                Trang Sức ra đời từ mong muốn tạo nên một không gian tuyển chọn trang sức nơi mỗi thiết kế không chỉ đẹp, mà còn phù hợp với nhịp sống thanh lịch hiện đại.
+              </p>
             </div>
-        </div>
-      </section>
-
-      {/* 3. Cam kết Section (3 cột) */}
-      <section className="bg-gray-50 py-16 px-4">
-        <div className="container mx-auto">
-          <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">Tại sao bạn nên chọn BTCK?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Cam kết 1 */}
-            <div className="flex flex-col items-center text-center p-6 bg-white rounded-lg shadow-sm">
-              <div className="p-4 bg-blue-100 text-blue-600 rounded-full mb-4">
-                <PackageCheck size={32} />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Ảnh Thật, Giá Trị Thật</h3>
-              <p className="text-gray-600">Cam kết hình ảnh sản phẩm là chân thực 100%. Mô tả rõ ràng, không gây hiểu lầm.</p>
-            </div>
-            {/* Cam kết 2 */}
-            <div className="flex flex-col items-center text-center p-6 bg-white rounded-lg shadow-sm">
-              <div className="p-4 bg-green-100 text-green-600 rounded-full mb-4">
-                <Truck size={32} />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Xử Lý Thần Tốc</h3>
-              <p className="text-gray-600">Tối ưu quy trình để đóng gói và giao cho đơn vị vận chuyển nhanh nhất có thể.</p>
-            </div>
-            {/* Cam kết 3 */}
-            <div className="flex flex-col items-center text-center p-6 bg-white rounded-lg shadow-sm">
-              <div className="p-4 bg-purple-100 text-purple-600 rounded-full mb-4">
-                <HeartHandshake size={32} />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Hỗ Trợ Tận Tâm</h3>
-              <p className="text-gray-600">Tư vấn size nhiệt tình. Đổi trả linh hoạt và nhanh chóng nếu có lỗi sản phẩm.</p>
+            <div className="rounded-[32px] border border-[var(--border-soft)] bg-[rgba(255,250,243,0.56)] p-6 md:p-8">
+              <p className="text-[11px] uppercase tracking-[0.3em] text-[var(--accent-deep)]">Tuyên ngôn</p>
+              <p className="luxury-title mt-4 text-3xl text-[var(--foreground)]">
+                Một món trang sức đẹp không chỉ để ngắm, mà để đồng hành cùng những khoảnh khắc đáng nhớ.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 4. Call to Action Cuối trang */}
-      <section className="py-16 text-center px-4">
-        <h2 className="text-2xl font-bold mb-6">Sẵn sàng trải nghiệm sự khác biệt?</h2>
-        <Link href="/shop">
-          <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full transition-all transform hover:scale-105 shadow-lg">
-            Khám phá Cửa hàng ngay
-          </button>
-        </Link>
+      <section className="mx-auto max-w-7xl px-4 py-14">
+        <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+          <div className="luxury-panel rounded-[36px] p-8 md:p-10">
+            <p className="text-[11px] uppercase tracking-[0.42em] text-[var(--accent-deep)]">Khởi đầu từ sự chọn lọc</p>
+            <h2 className="luxury-title mt-4 text-4xl text-[var(--foreground)] md:text-5xl">
+              Mỗi thiết kế đều được cân nhắc để giữ được vẻ đẹp lâu dài.
+            </h2>
+            <p className="mt-5 text-base leading-8 text-[var(--muted)]">
+              Chúng tôi ưu tiên những kiểu dáng có tỉ lệ hài hòa, chất liệu hoàn thiện tốt và khả năng đeo lâu dài mà vẫn giữ được cá tính riêng.
+            </p>
+            <p className="mt-4 text-base leading-8 text-[var(--muted)]">
+              Từ một món quà kỷ niệm cho đến thiết kế đồng hành hằng ngày, Trang Sức hướng đến cảm giác tinh tế, vừa đủ nổi bật nhưng không phô trương.
+            </p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            <ValueCard icon={<Gem size={26} />} title="Tuyển chọn kỹ lưỡng" desc="Mỗi mẫu đều được cân nhắc về độ sáng, chất liệu và khả năng phối." />
+            <ValueCard icon={<ShieldCheck size={26} />} title="Minh bạch" desc="Thông tin về sản phẩm, bảo hành và dịch vụ được trình bày rõ ràng." />
+            <ValueCard icon={<Sparkles size={26} />} title="Tinh tế" desc="Trải nghiệm mua sắm riêng tư, chỉn chu và phù hợp với nhiều dịp đặc biệt." />
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 pb-6">
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          <InfoCard
+            id="size-guide"
+            title="Tư vấn kích cỡ"
+            desc="Nhẫn và vòng tay được đo theo chu vi để đeo vừa vặn. Nếu bạn chưa chắc kích cỡ, hãy đặt lịch để được hướng dẫn đo size trực tiếp."
+            actionHref="/register"
+            actionLabel="Đặt lịch tư vấn"
+          />
+          <InfoCard
+            id="return-policy"
+            title="Chính sách đổi trả"
+            desc="Sản phẩm được hỗ trợ đổi trong 7 ngày nếu chưa qua sử dụng và còn đầy đủ hộp, thẻ bảo hành cùng hóa đơn."
+            actionHref="/orders"
+            actionLabel="Theo dõi đơn"
+          />
+          <InfoCard
+            id="warranty-care"
+            title="Bảo hành và chăm sóc"
+            desc="Atelier hỗ trợ vệ sinh, đánh bóng và kiểm tra ngóng đá định kỳ. Khách có thể liên hệ trước qua email hoặc điện thoại."
+            actionHref="mailto:concierge@btck.vn"
+            actionLabel="Gửi yêu cầu"
+          />
+          <InfoCard
+            id="terms"
+            title="Điều khoản"
+            desc="Thông tin giá, tồn kho và lịch hẹn có thể thay đổi theo từng thời điểm. Đơn hàng được xác nhận sau khi nhận phản hồi từ hệ thống."
+            actionHref="/shop"
+            actionLabel="Xem bộ sưu tập"
+          />
+          <InfoCard
+            id="privacy"
+            title="Bảo mật"
+            desc="Dữ liệu liên hệ và lịch sử đặt hàng chỉ được dùng để xử lý giao dịch, chăm sóc khách hàng và gửi thông tin khi bạn đồng ý."
+            actionHref="mailto:concierge@btck.vn?subject=Yeu%20cau%20bao%20mat%20thong%20tin"
+            actionLabel="Liên hệ bảo mật"
+          />
+          <InfoCard
+            id="cookies"
+            title="Cookie"
+            desc="Trang sử dụng cookie cần thiết để ghi nhớ phiên đăng nhập, giỏ hàng và cài đặt giao diện nhằm cải thiện trải nghiệm mua sắm."
+            actionHref="/"
+            actionLabel="Về trang chủ"
+          />
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 pb-6">
+        <div className="overflow-hidden rounded-[40px] bg-[#1a130f] px-6 py-12 text-center md:px-12">
+          <p className="text-[11px] uppercase tracking-[0.42em] text-[#a98a61]">Hẹn xem bộ sưu tập</p>
+          <h2 className="luxury-title mt-4 text-4xl text-[#fff6e7] md:text-5xl">Sẵn sàng khám phá một thiết kế dành riêng cho bạn?</h2>
+          <p className="mx-auto mt-4 max-w-2xl text-[#d8c5aa]">
+            Hãy bắt đầu từ bộ sưu tập hiện có hoặc liên hệ để nhận tư vấn riêng theo nhu cầu đeo hằng ngày và quà tặng.
+          </p>
+          <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <Link
+              href="/shop"
+              className="rounded-full bg-[#f0d7ae] px-8 py-4 text-sm font-semibold uppercase tracking-[0.24em] text-[#1a130f] transition hover:bg-[#fff6e7]"
+            >
+              Khám phá cửa hàng
+            </Link>
+            <Link
+              href="/register"
+              className="rounded-full border border-[rgba(212,178,124,0.22)] px-8 py-4 text-sm font-semibold uppercase tracking-[0.24em] text-[#fff6e7] transition hover:bg-[rgba(255,246,231,0.08)]"
+            >
+              Đặt lịch tư vấn
+            </Link>
+          </div>
+        </div>
       </section>
     </main>
+  );
+}
+
+function ValueCard({ icon, title, desc }: { icon: React.ReactNode; title: string; desc: string }) {
+  return (
+    <div className="luxury-panel rounded-[28px] p-6">
+      <div className="mb-5 inline-flex rounded-full border border-[var(--border-soft)] bg-[rgba(255,250,243,0.7)] p-3 text-[var(--accent-deep)]">{icon}</div>
+      <h3 className="luxury-title text-3xl text-[var(--foreground)]">{title}</h3>
+      <p className="mt-3 text-sm leading-7 text-[var(--muted)]">{desc}</p>
+    </div>
+  );
+}
+
+function InfoCard({
+  id,
+  title,
+  desc,
+  actionHref,
+  actionLabel,
+}: {
+  id: string;
+  title: string;
+  desc: string;
+  actionHref: string;
+  actionLabel: string;
+}) {
+  return (
+    <section id={id} className="scroll-mt-28 luxury-panel rounded-[28px] p-6">
+      <h3 className="luxury-title text-3xl text-[var(--foreground)]">{title}</h3>
+      <p className="mt-3 text-sm leading-7 text-[var(--muted)]">{desc}</p>
+      <Link
+        href={actionHref}
+        className="mt-5 inline-flex rounded-full border border-[var(--border-strong)] px-5 py-3 text-xs font-semibold uppercase tracking-[0.24em] text-[var(--foreground)] hover:bg-[rgba(157,122,69,0.08)]"
+      >
+        {actionLabel}
+      </Link>
+    </section>
   );
 }

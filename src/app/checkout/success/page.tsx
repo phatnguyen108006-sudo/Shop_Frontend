@@ -19,7 +19,7 @@ function SuccessContent() {
 
       <h1 className="text-3xl font-bold text-gray-900 mb-2">Đặt hàng thành công!</h1>
       <p className="text-gray-500 mb-8">
-        Cảm ơn bạn đã mua sắm tại BTCK. <br />
+        Cảm ơn bạn đã mua sắm tại Trang Sức. <br />
         Đơn hàng của bạn đang được xử lý.
       </p>
 

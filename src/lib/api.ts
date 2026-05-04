@@ -1,25 +1,32 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api/v1";
+const BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  "http://localhost:4000/api/v1";
 
-console.log("🔗 API Base URL:", BASE_URL);
-
-// Hàm chung để gọi API
 export async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
   const url = path.startsWith("http") ? path : `${BASE_URL}${path}`;
-  
   const headers = new Headers(options.headers || {});
-  headers.set("Content-Type", "application/json");
-  
-  // Thêm cache: 'no-store' để dữ liệu luôn mới nhất
-  const res = await fetch(url, { ...options, headers, cache: "no-store" });
-  
+
+  if (!headers.has("Content-Type") && options.body) {
+    headers.set("Content-Type", "application/json");
+  }
+
+  const res = await fetch(url, {
+    ...options,
+    headers,
+    cache: options.cache ?? "no-store",
+  });
+
   if (!res.ok) {
     let message = `${res.status} ${res.statusText}`;
-    try { 
-        const j = await res.json(); 
-        message = j?.error?.message || message; 
+
+    try {
+      const json = await res.json();
+      message = json?.error?.message || json?.message || message;
     } catch {}
+
     throw new Error(message);
   }
-  
+
   return res.json() as Promise<T>;
 }

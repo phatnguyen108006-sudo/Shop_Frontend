@@ -18,6 +18,11 @@ interface AuthContextType {
   loading: boolean;
 }
 
+type MeResponse = {
+  ok: boolean;
+  user?: User;
+};
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -25,21 +30,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // Kiểm tra đăng nhập khi vừa vào web (F5 không mất nick)
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem("token");
       if (token) {
         try {
-          const res = await getMeService(token);
+          const res = await getMeService(token) as MeResponse;
           if (res.ok && res.user) {
             setUser(res.user);
-            localStorage.setItem("role", res.user.role); 
+            localStorage.setItem("role", res.user.role);
           } else {
-            // Token hết hạn
-            logout(); 
+            logout();
           }
-        } catch (error) {
+        } catch (_error) {
           logout();
         }
       }
@@ -54,10 +57,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("user", JSON.stringify(userData));
     localStorage.setItem("role", userData.role);
     setUser(userData);
-    
-    // Điều hướng sau khi login
-    if (userData.role === 'admin') router.push('/admin');
-    else router.push('/');
+
+    if (userData.role === "admin") router.push("/admin");
+    else router.push("/");
   };
 
   const logout = () => {
@@ -75,7 +77,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// Đây là cái hook bạn đang cần import nè
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) throw new Error("useAuth must be used within AuthProvider");

@@ -3,7 +3,7 @@
 import { useCart } from "@/features/cart/cart-context";
 
 interface ProductInput {
-  _id: string; // Lưu ý: Backend bạn trả về _id hay id thì sửa ở đây cho khớp
+  _id: string;
   title: string;
   price: number;
   images: string[];
@@ -25,35 +25,27 @@ export default function AddToCartButton({
   fullWidth = true,
   className = "",
 }: AddToCartButtonProps) {
-  
-  // 1. SỬA: Lấy hàm addToCart thay vì dispatch
   const { addToCart } = useCart();
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
-    e.stopPropagation(); // Ngăn chặn sự kiện click lan ra ngoài (nếu nút nằm trong thẻ Link)
-    
+    e.stopPropagation();
+
     if (disabled) return;
 
-    // 2. Chuẩn bị dữ liệu (Map từ ProductInput sang CartItem)
-    const cartItem = {
-      id: product._id,       // CartContext cần 'id'
-      name: product.title,   // CartContext cần 'name'
+    addToCart({
+      id: product._id,
+      name: product.title,
       price: product.price,
-      image: product.images?.[0] || "", 
+      image: product.images?.[0] || "",
       quantity: 1,
       slug: product.slug,
-    };
-
-    // 3. SỬA: Gọi hàm trực tiếp
-    addToCart(cartItem);
-
-    // (Tùy chọn) Thêm thông báo hoặc hiệu ứng rung nhẹ ở đây nếu muốn
-    // alert("Đã thêm sản phẩm vào giỏ!");
+    });
   };
 
-  const base = "h-10 text-sm rounded-md border hover:bg-gray-50 disabled:opacity-40 transition-colors font-medium";
-  const width = fullWidth ? "w-full" : "px-4";
+  const base =
+    "rounded-full border border-[var(--border-strong)] bg-[var(--foreground)] text-[var(--background)] hover:-translate-y-0.5 hover:bg-[var(--accent-deep)] disabled:cursor-not-allowed disabled:border-[var(--border-soft)] disabled:bg-[rgba(255,250,243,0.55)] disabled:text-[var(--muted)] transition-all font-semibold uppercase tracking-[0.24em]";
+  const width = fullWidth ? "w-full" : "px-6";
 
   return (
     <button

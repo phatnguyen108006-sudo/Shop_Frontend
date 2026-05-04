@@ -10,29 +10,27 @@ interface ProductImageGalleryProps {
 }
 
 export default function ProductImageGallery({ images, title }: ProductImageGalleryProps) {
-  // Nếu không có ảnh, dùng ảnh placeholder
   const safeImages = images.length > 0 ? images : ["https://placehold.co/600x600?text=No+Image"];
   const [activeImage, setActiveImage] = useState(safeImages[0]);
 
   return (
-    <div className="flex flex-col gap-4 w-full">
-      {/* ẢNH CHÍNH (Lớn) */}
-      <div className="relative aspect-square w-full overflow-hidden rounded-2xl border bg-gray-50 shadow-sm group">
-        <Image
-          src={activeImage}
-          alt={title}
-          fill
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
-          priority
-          sizes="(max-width: 768px) 100vw, 50vw"
-        />
-        {/* Badge Mới (Trang trí) */}
-        <div className="absolute top-3 left-3 bg-black text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-          New Arrival
+    <div className="flex w-full flex-col gap-4">
+      <div className="luxury-panel relative aspect-square w-full overflow-hidden rounded-[32px] p-3 group">
+        <div className="relative h-full w-full overflow-hidden rounded-[24px]">
+          <Image
+            src={activeImage}
+            alt={title}
+            fill
+            className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+            priority
+            sizes="(max-width: 768px) 100vw, 50vw"
+          />
+          <div className="absolute left-4 top-4 rounded-full bg-[rgba(255,250,243,0.82)] px-4 py-2 text-[11px] uppercase tracking-[0.32em] text-[var(--accent-deep)] backdrop-blur">
+            Tuyển chọn mới
+          </div>
         </div>
       </div>
 
-      {/* LIST ẢNH NHỎ (Thumbnails) */}
       {safeImages.length > 1 && (
         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
           {safeImages.map((img, index) => (
@@ -40,18 +38,13 @@ export default function ProductImageGallery({ images, title }: ProductImageGalle
               key={index}
               onClick={() => setActiveImage(img)}
               className={cn(
-                "relative h-20 w-20 flex-shrink-0 cursor-pointer overflow-hidden rounded-lg border-2 transition-all",
-                activeImage === img 
-                  ? "border-black ring-1 ring-black opacity-100" 
-                  : "border-transparent opacity-70 hover:opacity-100 hover:border-gray-300"
+                "luxury-panel relative h-24 w-24 flex-shrink-0 cursor-pointer overflow-hidden rounded-[20px] p-1 transition-all",
+                activeImage === img ? "ring-1 ring-[var(--accent-deep)] opacity-100" : "opacity-70 hover:opacity-100"
               )}
             >
-              <Image 
-                src={img} 
-                alt={`${title} - ${index}`} 
-                fill 
-                className="object-cover" 
-              />
+              <div className="relative h-full w-full overflow-hidden rounded-[14px]">
+                <Image src={img} alt={`${title} - ${index + 1}`} fill className="object-cover" />
+              </div>
             </button>
           ))}
         </div>

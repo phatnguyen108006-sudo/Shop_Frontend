@@ -1,21 +1,7 @@
-"use client";
-
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import ProductCard from "@/components/ProductCard";
+import Link from "next/link";
+import ProductCard, { type Product } from "@/components/ProductCard";
 import { apiFetch } from "@/lib/api";
 
-// Định nghĩa kiểu dữ liệu cho sản phẩm
-interface Product {
-  _id: string;
-  title: string;
-  price: number;
-  images: string[];
-  category: string;
-  slug: string;
-}
-
-// Định nghĩa kiểu dữ liệu trả về từ API
 interface ApiResponse {
   ok: boolean;
   data: Product[];
@@ -26,122 +12,127 @@ interface ApiResponse {
 
 const LIMIT = 12;
 
-export default function ShopPage() {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+type SearchParams = Promise<{
+  page?: string;
+  q?: string;
+}>;
 
-  // Lấy tham số từ URL
-  const pageParam = Math.max(parseInt(searchParams.get("page") || "1", 10), 1);
-  const qParam = searchParams.get("q") || "";
+function makePageHref(page: number, qParam: string) {
+  const params = new URLSearchParams();
 
-  // State lưu dữ liệu
-  const [data, setData] = useState<ApiResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [errorMsg, setErrorMsg] = useState("");
+  if (page > 1) {
+    params.set("page", String(page));
+  }
 
-  // GỌI API TỪ BACKEND
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      setErrorMsg("");
-      try {
-        // Tạo query string
-        const params = new URLSearchParams({
-          page: String(pageParam),
-          limit: String(LIMIT),
-        });
-        
-        if (qParam) params.set("q", qParam);
+  if (qParam) {
+    params.set("q", qParam);
+  }
 
-        // 👇 SỬA LẠI: Dùng apiFetch thay cho fetch thường
-        // Không cần lo http://localhost hay https://... nữa
-        const json = await apiFetch<ApiResponse>(`/products?${params.toString()}`);
+  const query = params.toString();
+  return query ? `/shop?${query}` : "/shop";
+}
 
-        setData(json);
-      } catch (err: any) {
-        console.error(err);
-        setErrorMsg(err.message || "Lỗi tải dữ liệu");
-      } finally {
-        setIsLoading(false);
-      }
-    };
+export default async function ShopPage({ searchParams }: { searchParams: SearchParams }) {
+  const resolvedSearchParams = await searchParams;
+  const pageParam = Math.max(parseInt(resolvedSearchParams.page || "1", 10), 1);
+  const qParam = resolvedSearchParams.q?.trim() || "";
 
-    fetchData();
-  }, [pageParam, qParam]);
+  const params = new URLSearchParams({
+    page: String(pageParam),
+    limit: String(LIMIT),
+  });
 
-  // Hàm chuyển trang
-  function setUrl(next: { page?: number }) {
-    const sp = new URLSearchParams(searchParams.toString());
-    if (typeof next.page === "number") sp.set("page", String(next.page));
-    router.push(`${pathname}?${sp.toString()}`);
+  if (qParam) {
+    params.set("q", qParam);
+  }
+
+  let data: ApiResponse | null = null;
+  let errorMsg = "";
+
+  try {
+    data = await apiFetch<ApiResponse>(`/products?${params.toString()}`);
+  } catch (error) {
+    errorMsg = error instanceof Error ? error.message : "Không tải được dữ liệu";
   }
 
   return (
-    <main className="py-8 px-4 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Cửa hàng</h1>
-        {qParam && (
-            <p className="text-gray-500">Kết quả tìm kiếm cho: <span className="font-bold text-black">"{qParam}"</span></p>
-        )}
+    <main className="mx-auto max-w-7xl px-4 py-8">
+      <section className="luxury-panel luxury-shell mb-8 rounded-[36px] px-6 py-10 md:px-10">
+        <p className="text-[11px] uppercase tracking-[0.45em] text-[var(--accent-deep)]">Nhà tuyển chọn trang sức</p>
+        <div className="mt-4 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+          <div className="max-w-2xl">
+            <h1 className="luxury-title text-4xl font-semibold text-[var(--foreground)] md:text-6xl">
+              Bộ sưu tập dành cho nét đẹp thanh lịch.
+            </h1>
+            <p className="mt-4 text-sm leading-7 text-[var(--muted)] md:text-base">
+              Khám phá nhẫn, dây chuyền và vòng tay được chọn lọc theo gu sang trọng hiện đại, tối ưu cho việc tặng quà và sử dụng hằng ngày.
+            </p>
+          </div>
+          <div className="rounded-[28px] border border-[var(--border-soft)] bg-[rgba(255,250,243,0.62)] px-5 py-4 text-sm text-[var(--muted)]">
+            {qParam ? (
+              <p>
+                Kết quả tìm kiếm cho <span className="font-semibold text-[var(--foreground)]">"{qParam}"</span>
+              </p>
+            ) : (
+              <p>Tất cả thiết kế hiện có tại atelier</p>
+            )}
+          </div>
+        </div>
+      </section>
+
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="text-sm uppercase tracking-[0.35em] text-[var(--muted)]">Sản phẩm nổi bật</h2>
+        {qParam && <p className="text-sm text-[var(--muted)]">Đang lọc theo từ khóa tìm kiếm</p>}
       </div>
 
-      {/* Loading State */}
-      {isLoading && (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 animate-pulse">
-          {Array.from({ length: LIMIT }).map((_, i) => (
-            <div key={i} className="h-80 bg-gray-200 rounded-xl" />
-          ))}
-        </div>
-      )}
-
-      {/* Error State */}
       {errorMsg && (
-        <div className="p-4 bg-red-50 text-red-600 rounded-lg border border-red-200">
+        <div className="rounded-[24px] border border-red-200 bg-red-50 p-4 text-red-600">
           Lỗi: {errorMsg}. Vui lòng thử lại sau.
         </div>
       )}
 
-      {/* Empty State */}
-      {!isLoading && data && data.data.length === 0 && (
-        <div className="text-center py-12 text-gray-500">
-          <p className="text-xl">Không tìm thấy sản phẩm nào.</p>
-          <button 
-            onClick={() => router.push(pathname)}
-            className="mt-4 text-blue-600 hover:underline"
-          >
+      {!errorMsg && data && data.data.length === 0 && (
+        <div className="py-16 text-center text-[var(--muted)]">
+          <p className="luxury-title text-3xl text-[var(--foreground)]">Không tìm thấy thiết kế phù hợp.</p>
+          <Link href="/shop" className="mt-4 inline-block text-sm uppercase tracking-[0.25em] text-[var(--accent-deep)] hover:opacity-80">
             Xem tất cả sản phẩm
-          </button>
+          </Link>
         </div>
       )}
 
-      {/* Product Grid */}
-      {!isLoading && data && data.data.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {data.data.map((p, index) => (
-            <ProductCard key={p._id || index} product={p} />
+      {!errorMsg && data && data.data.length > 0 && (
+        <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4">
+          {data.data.map((product, index) => (
+            <ProductCard key={product._id || product.id || index} product={product} />
           ))}
         </div>
       )}
 
-      {/* Pagination */}
-      {!isLoading && data && (data.page > 1 || data.hasNext) && (
-        <div className="mt-10 flex justify-center items-center gap-4">
-          <button
-            className="h-10 px-4 rounded border hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            onClick={() => setUrl({ page: Math.max(pageParam - 1, 1) })}
-            disabled={pageParam <= 1}
+      {!errorMsg && data && (data.page > 1 || data.hasNext) && (
+        <div className="mt-10 flex items-center justify-center gap-4">
+          <Link
+            href={makePageHref(Math.max(pageParam - 1, 1), qParam)}
+            aria-disabled={pageParam <= 1}
+            className={`h-11 rounded-full border px-5 text-sm uppercase tracking-[0.2em] inline-flex items-center ${
+              pageParam <= 1
+                ? "pointer-events-none cursor-not-allowed border-[var(--border-soft)] text-[var(--muted)] opacity-50"
+                : "border-[var(--border-strong)] text-[var(--foreground)] hover:bg-[rgba(157,122,69,0.08)]"
+            }`}
           >
-            ← Trang trước
-          </button>
-          <span className="font-medium">Trang {data.page}</span>
-          <button
-            className="h-10 px-4 rounded border hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            onClick={() => setUrl({ page: data.page + 1 })}
-            disabled={!data.hasNext}
+            Trang trước
+          </Link>
+          <span className="text-sm uppercase tracking-[0.24em] text-[var(--muted)]">Trang {data.page}</span>
+          <Link
+            href={makePageHref(data.page + 1, qParam)}
+            aria-disabled={!data.hasNext}
+            className={`h-11 rounded-full border px-5 text-sm uppercase tracking-[0.2em] inline-flex items-center ${
+              !data.hasNext
+                ? "pointer-events-none cursor-not-allowed border-[var(--border-soft)] text-[var(--muted)] opacity-50"
+                : "border-[var(--border-strong)] text-[var(--foreground)] hover:bg-[rgba(157,122,69,0.08)]"
+            }`}
           >
-            Trang sau →
-          </button>
+            Trang sau
+          </Link>
         </div>
       )}
     </main>

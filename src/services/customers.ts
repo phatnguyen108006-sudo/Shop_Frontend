@@ -1,24 +1,60 @@
-import { apiFetch } from '@/lib/api';
+import { apiFetch } from "@/lib/api";
 
-// Lấy danh sách khách hàng (Admin)
-export async function getCustomers(page = 1, search = "") {
+export async function getCustomers(page = 1, search = "", role = "") {
   try {
-    // Lấy token an toàn (tránh lỗi khi chạy trên server next.js)
-    const token = typeof window !== 'undefined' ? localStorage.getItem("token") : "";
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : "";
+    const params = new URLSearchParams({
+      page: String(page),
+      limit: "10",
+      q: search,
+      role,
+    });
 
-    // Dùng apiFetch: tự động ghép link API, tự xử lý JSON
-    const result: any = await apiFetch(`/customers?page=${page}&limit=10&q=${search}`, {
-      headers: { 
-        "Authorization": `Bearer ${token}` 
+    const result: any = await apiFetch(`/customers?${params.toString()}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
     });
-    
-    // Trả về kết quả hoặc object rỗng nếu null
-    return result || { data: [], total: 0 };
 
+    return result || { data: [], total: 0 };
   } catch (error) {
-    console.error("Lỗi lấy danh sách khách hàng:", error);
-    // Trả về mặc định để không bị sập trang Admin
+    console.error("Lỗi lấy danh sách tài khoản:", error);
     return { data: [], total: 0 };
   }
+}
+
+export async function createAdmin(payload: { name: string; email: string; password: string }) {
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : "";
+
+  return await apiFetch("/customers/admin", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updateUser(id: string, payload: { name: string; email: string; role: "user" | "admin" }) {
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : "";
+
+  return await apiFetch(`/customers/${id}`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function resetUserPassword(id: string, currentAdminPassword: string, password: string) {
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : "";
+
+  return await apiFetch(`/customers/${id}/password`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ currentAdminPassword, password }),
+  });
 }

@@ -1,59 +1,74 @@
-import { apiFetch } from '@/lib/api';
+import { apiFetch } from "@/lib/api";
 
-// Định nghĩa kiểu dữ liệu gửi đi
 export type CreateOrderInput = {
   customerName: string;
   customerPhone: string;
   customerAddress: string;
   paymentMethod: string;
   note?: string;
-  items: { 
-    productId: string | number; 
+  items: {
+    productId: string | number;
+    slug?: string;
     quantity: number;
-    price?: number; 
+    price?: number;
   }[];
   totalPrice: number;
 };
 
-// Helper lấy token an toàn
+export type CreatedOrder = {
+  id: string | number;
+  _id?: string | number;
+};
+
+type CreateOrderResponse =
+  | { ok: true; order: CreatedOrder }
+  | { ok: false; error?: { message?: string } };
+
 const getToken = () => {
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     return localStorage.getItem("token");
   }
   return null;
 };
 
-// --- 1. TẠO ĐƠN HÀNG ---
 export async function createOrder(input: CreateOrderInput) {
   try {
     const token = getToken();
-    const headers: any = {};
-    if (token) headers["Authorization"] = `Bearer ${token}`;
+    const headers: Record<string, string> = {};
+    if (token) headers.Authorization = `Bearer ${token}`;
 
-    // apiFetch tự thêm Content-Type: application/json
-    const result = await apiFetch('/orders', {
+    const result = await apiFetch<CreateOrderResponse>("/orders", {
       method: "POST",
-      headers: headers,
-      body: JSON.stringify(input),
+      headers,
+      body: JSON.stringify({
+        ...input,
+        items: input.items.map((item) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+        })),
+      }),
     });
 
-    return result;
+    if (!result.ok) {
+      throw new Error(result.error?.message || "Không thể tạo đơn hàng");
+    }
+
+    return result.order;
   } catch (error) {
     console.error("Lỗi khi tạo đơn hàng:", error);
     throw error;
   }
 }
 
-// --- 2. TRA CỨU DANH SÁCH ĐƠN (User & Khách vãng lai) ---
 export async function getMyOrders(phone = "") {
   try {
     const token = getToken();
-    const headers: any = {};
-    if (token) headers["Authorization"] = `Bearer ${token}`;
+    const headers: Record<string, string> = {};
+    if (token) headers.Authorization = `Bearer ${token}`;
 
     const result: any = await apiFetch(`/orders/lookup?phone=${phone}`, {
       method: "GET",
-      headers: headers,
+      headers,
     });
 
     return result.data || [];
@@ -63,11 +78,10 @@ export async function getMyOrders(phone = "") {
   }
 }
 
-// --- 3. TRA CỨU CHI TIẾT ĐƠN HÀNG THEO MÃ VÀ SĐT (Công khai) ---
 export async function trackOrderService(orderId: string, phone: string) {
   try {
-    const result: any = await apiFetch('/orders/track', {
-      method: "POST", 
+    const result: any = await apiFetch("/orders/track", {
+      method: "POST",
       body: JSON.stringify({ orderId, phone }),
     });
 
@@ -78,34 +92,32 @@ export async function trackOrderService(orderId: string, phone: string) {
   }
 }
 
-// --- 4. ADMIN: SEARCH ĐƠN THEO SĐT ---
 export async function adminSearchOrders(phone: string) {
   try {
     const token = getToken();
-    
+
     const result: any = await apiFetch(`/orders?phone=${phone}`, {
       method: "GET",
-      headers: { 
-        "Authorization": `Bearer ${token}` 
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
     });
 
-    return result.data || []; 
+    return result.data || [];
   } catch (error) {
     console.error("Lỗi admin tra cứu:", error);
     return [];
   }
 }
 
-// --- 5. ADMIN: LẤY TẤT CẢ ĐƠN ---
 export async function getAllOrders() {
   try {
     const token = getToken();
-    
-    const result: any = await apiFetch('/orders', {
+
+    const result: any = await apiFetch("/orders", {
       method: "GET",
-      headers: { 
-        "Authorization": `Bearer ${token}` 
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
     });
 
@@ -116,29 +128,27 @@ export async function getAllOrders() {
   }
 }
 
-// --- 6. ADMIN: LẤY CHI TIẾT 1 ĐƠN ---
 export async function getOrderByIdAdmin(id: string) {
   try {
     const token = getToken();
     const result: any = await apiFetch(`/orders/${id}`, {
-      headers: { "Authorization": `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${token}` },
     });
-    return result.data || null; 
-  } catch (error) {
+    return result.data || null;
+  } catch (_error) {
     return null;
   }
 }
 
-// --- 7. ADMIN: CẬP NHẬT TRẠNG THÁI ---
 export async function updateOrderStatus(id: string, status: string) {
   try {
     const token = getToken();
     await apiFetch(`/orders/${id}/status`, {
-      method: "PATCH",
-      headers: { 
-        "Authorization": `Bearer ${token}` 
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ status })
+      body: JSON.stringify({ status }),
     });
     return true;
   } catch (error) {
